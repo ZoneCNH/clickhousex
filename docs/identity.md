@@ -1,0 +1,25 @@
+# clickhousex 身份
+
+## 我是谁
+
+`clickhousex` 是 FoundationX 的 **ClickHouse 存储扩展模块**，提供 ClickHouse 列式数据库客户端封装。
+
+## 我做什么
+
+- ClickHouse 连接池和健康检查
+- 批量写入和查询接口封装
+- 配置模型标准化
+
+## 我不做什么
+
+- 不是分析业务逻辑 — 分析语义由调用方定义
+- 不是模板源 — 模板生成属于 xlib-standard
+- 不依赖其他存储模块
+
+## 宪法合规
+
+| 条款 | 遵循方式 |
+|------|----------|
+| §3.3 | 存储扩展，可依赖 kernel + observex (interface-only) |
+| §3.4 | 不依赖 configx、业务域、其他存储扩展 |
+| §1 P13 | 存储扩展之间平级协作 |
