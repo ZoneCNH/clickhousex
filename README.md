@@ -1,12 +1,11 @@
 # clickhousex
 
-ClickHouse 客户端 SDK，继承 xlib-standard 规范。
+ClickHouse 客户端 SDK — OLAP 查询、批量写入、连接管理和健康检查。
 
 ## 模块信息
 
 - 模块路径: `github.com/ZoneCNH/clickhousex`
 - Go 版本: 1.23
-- 依赖: `github.com/ZoneCNH/xlib-standard v0.4.14`
 
 ## 安装
 
