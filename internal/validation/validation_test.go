@@ -3,15 +3,12 @@ package validation
 import "testing"
 
 func TestRequireNonEmpty(t *testing.T) {
-	if err := RequireNonEmpty("name", "primary"); err != nil {
-		t.Fatalf("expected non-empty value to pass, got %v", err)
-	}
+	t.Parallel()
 
-	err := RequireNonEmpty("name", "")
-	if err == nil {
-		t.Fatal("expected empty value to fail")
+	if err := RequireNonEmpty("name", "value"); err != nil {
+		t.Fatalf("RequireNonEmpty(non-empty) returned error: %v", err)
 	}
-	if got := err.Error(); got != "name is required" {
-		t.Fatalf("unexpected error: %q", got)
+	if err := RequireNonEmpty("name", ""); err == nil || err.Error() != "name is required" {
+		t.Fatalf("RequireNonEmpty(empty) = %v, want name is required", err)
 	}
 }

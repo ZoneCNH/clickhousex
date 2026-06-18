@@ -3,10 +3,12 @@ package sanitize
 import "testing"
 
 func TestSecret(t *testing.T) {
+	t.Parallel()
+
 	if got := Secret(""); got != "" {
-		t.Fatalf("empty secret should remain empty, got %q", got)
+		t.Fatalf("Secret(empty) = %q, want empty", got)
 	}
-	if got := Secret("password"); got != "***" {
-		t.Fatalf("non-empty secret should be masked, got %q", got)
+	if got := Secret("secret"); got != "***" {
+		t.Fatalf("Secret(non-empty) = %q, want masked", got)
 	}
 }
