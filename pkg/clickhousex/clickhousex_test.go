@@ -37,6 +37,23 @@ func (expiredDeadlineContext) Err() error {
 	return nil
 }
 
+type delayedCanceledDeadlineContext struct {
+	context.Context
+	errCalls int
+}
+
+func (delayedCanceledDeadlineContext) Deadline() (time.Time, bool) {
+	return time.Now().Add(-time.Millisecond), true
+}
+
+func (c *delayedCanceledDeadlineContext) Err() error {
+	c.errCalls++
+	if c.errCalls > 1 {
+		return context.Canceled
+	}
+	return nil
+}
+
 type recordingMetrics struct {
 	counters   []counterCall
 	histograms []histogramCall
@@ -309,6 +326,11 @@ func TestHealthCheck(t *testing.T) {
 	client, metrics = newTestClient(t)
 	status = client.HealthCheck(expiredDeadlineContext{Context: context.Background()})
 	assertHealth(t, status, "primary", HealthUnhealthy, context.DeadlineExceeded.Error())
+	assertHealthMetrics(t, metrics, "primary", HealthUnhealthy, 0)
+
+	client, metrics = newTestClient(t)
+	status = client.HealthCheck(&delayedCanceledDeadlineContext{Context: context.Background()})
+	assertHealth(t, status, "primary", HealthUnhealthy, context.Canceled.Error())
 	assertHealthMetrics(t, metrics, "primary", HealthUnhealthy, 0)
 
 	client, metrics = newTestClient(t)
