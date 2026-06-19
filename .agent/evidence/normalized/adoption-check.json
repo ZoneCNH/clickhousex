@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "profile": "adoption",
+  "status": "pass",
+  "local_public_api_harness": "pass",
+  "external_consumer_rollout": "missing",
+  "evidence": ".agent/evidence/raw/adoption-test.json"
+}

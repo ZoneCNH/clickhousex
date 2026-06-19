@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "module": "clickhousex",
+  "release_version": "v1.0.9",
+  "target_release_level": "L2-T4",
+  "release_level_actual": "L2-T3",
+  "factory_grade": false,
+  "release_readiness": ".agent/evidence/decision/release-readiness.json",
+  "traceability": ".agent/evidence/trace/traceability-matrix.json",
+  "retrospective": ".agent/evidence/retrospective.json"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "profile": "contract",
+  "status": "pass",
+  "source": "pkg/clickhousex/clickhousex_test.go",
+  "commands": [
+    "make test-contract"
+  ],
+  "contracts": [
+    "config validation and sanitization",
+    "constructor and metric hooks",
+    "close and ping semantics",
+    "retryable exec errors",
+    "query rows scan validation",
+    "batch insert validation and table-not-found mapping",
+    "health status mapping",
+    "error and options contracts"
+  ]
+}

@@ -1,0 +1,37 @@
+schema_version: "1.0"
+module: clickhousex
+release_version: v1.0.9
+layer: L2
+provider: clickhouse
+target_release_level: L2-T4
+release_level_actual: L2-T3
+factory_grade: false
+capabilities:
+  common:
+    required: true
+    status: pass
+  columnstore:
+    required: true
+    status: pass
+  batch_insert:
+    required: true
+    status: pass
+  ttl:
+    required: false
+    status: not_implemented
+  partition:
+    required: false
+    status: not_implemented
+  streaming_query:
+    required: false
+    status: bounded_rows_wrapper
+  async_insert:
+    required: false
+    status: not_implemented
+required_profiles:
+  L2-T3: [unit, contract, integration, chaos, benchmark, adoption]
+  L2-T4: [unit, contract, integration, chaos, benchmark, adoption, retrospective]
+factory_blockers:
+  - production-duration multi-hour live soak evidence is not archived
+  - external consumer rollout evidence is not archived
+  - factory-grade release archive has not been produced from a passing factory workflow

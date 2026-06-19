@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "profile": "contract",
+  "status": "pass",
+  "required_contract_tests": "pass",
+  "evidence": ".agent/evidence/raw/contract-test.json"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "profile": "integration",
+  "status": "pass",
+  "source": "release/evidence/v1.0.9.md",
+  "config_source": "sre/secrets/env/dev.md projected through the local runtime environment; credential values omitted",
+  "commands": [
+    "CLICKHOUSEX_RUN_INTEGRATION=1 GOWORK=off go test -count=1 -run TestClickHouseLiveIntegration -v ./pkg/clickhousex",
+    "CLICKHOUSEX_RUN_INTEGRATION=1 CLICKHOUSEX_RUN_SOAK=1 CLICKHOUSEX_SOAK_DURATION=60s CLICKHOUSEX_SOAK_INTERVAL=100ms GOWORK=off go test -count=1 -run TestClickHouseLiveSoak -v ./pkg/clickhousex"
+  ],
+  "live_soak_duration": "60s",
+  "live_soak_iterations": 329,
+  "factory_grade_gap": "multi-hour live soak evidence is still required"
+}
