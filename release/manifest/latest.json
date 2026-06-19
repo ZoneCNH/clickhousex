@@ -1,7 +1,7 @@
 {
   "module": "github.com/ZoneCNH/clickhousex",
-  "version": "v1.0.7",
+  "version": "v1.0.8",
   "release_date": "2026-06-19",
-  "scope": "soak-benchmark-profile-gate",
+  "scope": "re-verification-release",
   "status": "released"
 }

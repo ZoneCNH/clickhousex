@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.8 - 2026-06-19
+
+- Re-verify the complete client release gate against the local dev ClickHouse instance: unit, race, vet, build, lint, 100.0% statement coverage, live integration, and a 60s live soak (366 iterations).
+- Refresh release evidence and re-align all version metadata (`VERSION`, `.repo-contract.yaml`, `pkg/clickhousex/version.go`, `release/manifest/latest.json`) to v1.0.8.
+- Merge the clickhousex integration branch into `main` so the v1.0.3–v1.0.8 release line is reachable from the default branch.
+
 ## v1.0.7 - 2026-06-19
 
 - Add a default-skipped live ClickHouse soak gate that repeatedly writes, counts, and reads back rows using environment-supplied dev credentials.
