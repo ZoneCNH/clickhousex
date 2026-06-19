@@ -2,5 +2,5 @@ package clickhousex
 
 const (
 	ModuleName = "github.com/ZoneCNH/clickhousex"
-	Version    = "v0.1.0"
+	Version    = "v1.0.8"
 )

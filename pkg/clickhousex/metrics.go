@@ -12,6 +12,13 @@ const (
 	MetricClientInflight               = "client_inflight"
 	MetricClickhouseQueriesTotal       = "clickhousex_queries_total"
 	MetricClickhouseBatchInsertsTotal  = "clickhousex_batch_inserts_total"
+	MetricClickhouseQueryDuration      = "clickhousex.query.duration"
+	MetricClickhouseWriteDuration      = "clickhousex.write.duration"
+	MetricClickhouseWriteRows          = "clickhousex.write.rows"
+	MetricClickhouseWriteBytes         = "clickhousex.write.bytes"
+	MetricClickhousePoolActive         = "clickhousex.pool.active"
+	MetricClickhousePoolIdle           = "clickhousex.pool.idle"
+	MetricClickhousePoolExhausted      = "clickhousex.pool.exhausted"
 )
 
 // Metrics defines the hook interface for observability instrumentation.
@@ -24,8 +31,19 @@ type Metrics interface {
 // NoopMetrics is a Metrics implementation that discards all observations.
 type NoopMetrics struct{}
 
-func (NoopMetrics) IncCounter(name string, labels map[string]string) {}
+func (NoopMetrics) IncCounter(name string, labels map[string]string) {
+	_ = name
+	_ = labels
+}
 
-func (NoopMetrics) ObserveHistogram(name string, value float64, labels map[string]string) {}
+func (NoopMetrics) ObserveHistogram(name string, value float64, labels map[string]string) {
+	_ = name
+	_ = value
+	_ = labels
+}
 
-func (NoopMetrics) SetGauge(name string, value float64, labels map[string]string) {}
+func (NoopMetrics) SetGauge(name string, value float64, labels map[string]string) {
+	_ = name
+	_ = value
+	_ = labels
+}
