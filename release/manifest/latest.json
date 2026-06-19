@@ -1,7 +1,7 @@
 {
   "module": "github.com/ZoneCNH/clickhousex",
-  "version": "v1.0.5",
+  "version": "v1.0.6",
   "release_date": "2026-06-19",
-  "scope": "complete-clickhouse-client-coverage-gate",
+  "scope": "live-clickhouse-integration-gate",
   "status": "released"
 }

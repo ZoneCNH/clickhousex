@@ -74,7 +74,16 @@ func main() {
 ```bash
 make build   # 编译
 make test    # 运行测试
+make integration-test # 运行显式启用的真实 ClickHouse 集成测试
 make lint    # 代码检查
 make vet     # 静态分析
 make fmt     # 格式化
+```
+
+## Live 集成测试
+
+默认测试不会连接外部服务。需要复验真实 ClickHouse 时，先在环境中提供 `CLICKHOUSEX_TEST_*` 或 `FOUNDATIONX_CLICKHOUSEX_*` 配置（`HOST`、`PORT`、`DATABASE`、`USERNAME`、`PASSWORD` 或 `DSN`），再运行：
+
+```bash
+CLICKHOUSEX_RUN_INTEGRATION=1 go test -count=1 -run TestClickHouseLiveIntegration -v ./pkg/clickhousex
 ```

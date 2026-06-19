@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.6 - 2026-06-19
+
+- Add default-skipped live ClickHouse integration coverage for `New`, `Ping`, `HealthCheck`, `Exec`, `InsertBatch`, `Query`, `Rows` metadata, scan, and cleanup against a real development instance.
+- Add `make integration-test` plus README environment wiring for secret-free local live verification.
+- Record release evidence for the local dev integration gate while keeping credential values outside committed artifacts.
+
 ## v1.0.5 - 2026-06-19
 
 - Raise the local release evidence from broad fake-driver coverage to exact 100.0% statement coverage across the module.
