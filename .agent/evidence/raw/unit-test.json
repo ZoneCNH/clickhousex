@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "profile": "unit",
+  "status": "pass",
+  "source": "release/evidence/v1.0.8.md",
+  "commands": [
+    "GOWORK=off go test ./...",
+    "GOWORK=off go test -race ./...",
+    "GOWORK=off go vet ./...",
+    "GOWORK=off go build ./...",
+    "GOWORK=off go test ./... -covermode=atomic -coverprofile=coverage.out",
+    "GOWORK=off go tool cover -func=coverage.out"
+  ],
+  "coverage_total": "100.0%"
+}

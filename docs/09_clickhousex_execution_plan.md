@@ -24,12 +24,16 @@ capability manifest
 common / columnstore / batch_insert / ttl / partition / streaming_query / async_insert
 ```
 
-## 3. L2-T2 Capability Manifest
+## 3. L2 Capability Manifest
 
 ```yaml
 repo: clickhousex
 layer: L2
 version: "1.0"
+target_release_level: L2-T4
+release_level_actual: L2-T3
+release_allowed: true
+factory_grade: false
 
 capabilities:
   common: { required: true, level: core }
@@ -44,8 +48,14 @@ provider:
   name: clickhouse
   test_image: clickhouse/clickhouse-server:latest
 
-required_profiles: [unit, contract, integration]
-release_level: L2-T2
+required_profiles:
+  release_ready: [unit, contract, integration, chaos, benchmark, adoption]
+  factory_grade: [unit, contract, integration, chaos, benchmark, adoption, retrospective]
+
+factory_blockers:
+  - production-duration multi-hour live soak evidence is not archived
+  - external consumer rollout evidence is not archived
+  - factory-grade release archive has not been produced from a passing factory workflow
 ```
 
 ## 4. P0 Contract Tests
@@ -124,6 +134,7 @@ make test-arch
 make test-security
 make evidence
 make release-check
+make factory-check
 ```
 
 最小 MVA 阶段可以先保留：
@@ -185,15 +196,15 @@ L2-T3:
   chaos + benchmark + adoption + layer guard + secret scan
 
 L2-T4:
-  extended capabilities + traceability + retrospective + factory_grade=true
+  extended capabilities + traceability + retrospective + factory_grade=true + multi-hour live soak + external consumer rollout archive
 ```
 
 ## 8. Rollout
 
 ```text
-L2-T2 验证 columnstore/batch_insert。
-L2-T3 增加 chaos/benchmark/adoption/large result。
-L2-T4 打开 ttl/partition/streaming_query/async_insert。
+当前 release_level_actual 为 L2-T3：columnstore/batch_insert、chaos、benchmark、adoption、layer guard、secret scan 和 release-readiness 已纳入本地门禁。
+L2-T4 仍阻塞：需要归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory-grade release archive。
+ttl/partition/streaming_query/async_insert 属于后续扩展能力，不能替代 L2-T4 所需的生产运行证据。
 ```
 
 ## 9. 特殊注意
@@ -212,6 +223,7 @@ release_level_actual 符合目标等级
 hard_failures 全部 false
 required_contract_tests 全部通过
 required_evidence 全部存在
+factory_grade 只能在 make factory-check 通过后置为 true
 正式代码不依赖 testkitx
 不依赖其它 L2
 ```

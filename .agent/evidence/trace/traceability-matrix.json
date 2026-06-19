@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "module": "clickhousex",
+  "traceability_status": "complete",
+  "requirements": {
+    "config": [
+      "TestConfigValidateAndSanitize",
+      "TestConfigBranchCoverageAndOptions"
+    ],
+    "client_lifecycle": [
+      "TestNewUsesConnectorAndMetrics",
+      "TestCloseAndPing"
+    ],
+    "query": [
+      "TestExecRetriesRetryableErrors",
+      "TestQueryReturnsRowsAndValidatesScan",
+      "TestClientFailureBranches",
+      "TestRetryAndHelperBranches"
+    ],
+    "batch_insert": [
+      "TestInsertBatchValidationAndSend",
+      "TestInsertBatchMapsTableNotFound",
+      "TestNativeAdaptersForwardCallsAndMapTypes"
+    ],
+    "rows_and_errors": [
+      "TestErrorAndRowsBranches",
+      "TestErrorsMetricsAndOptions"
+    ],
+    "health": [
+      "TestHealthUsesPing",
+      "TestHealthBranches"
+    ],
+    "live_clickhouse": [
+      "TestClickHouseLiveIntegration",
+      "TestClickHouseLiveSoak"
+    ]
+  }
+}

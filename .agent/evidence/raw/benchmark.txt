@@ -1,0 +1,8 @@
+goos: linux
+goarch: amd64
+pkg: github.com/ZoneCNH/clickhousex/pkg/clickhousex
+cpu: Intel(R) Xeon(R) W-10885M CPU @ 2.40GHz
+BenchmarkClientExec-16             	  727092	      1474 ns/op	     848 B/op	       8 allocs/op
+BenchmarkClientQueryRowsScan-16    	  835095	      1672 ns/op	     984 B/op	       15 allocs/op
+BenchmarkClientInsertBatch-16      	  622778	      2013 ns/op	     800 B/op	       12 allocs/op
+BenchmarkClientHealthCheck-16      	 2717629	       485.4 ns/op	     336 B/op	       2 allocs/op
