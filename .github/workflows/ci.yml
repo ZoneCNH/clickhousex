@@ -81,13 +81,20 @@ jobs:
         with:
           go-version: "1.23"
       - name: Install xlibgate
-        run: go install github.com/ZoneCNH/xlibgate/cmd/xlibgate@v1.0.0
+        run: go install github.com/ZoneCNH/xlibgate/cmd/xlibgate@555ee7b841b52e6e11d7493fb31916e80c28d7f3
       - name: Trust Alignment
         run: |
           GOWORK=off xlibgate trust identity --repo .
           GOWORK=off xlibgate trust template-residue --repo .
-          GOWORK=off xlibgate trust release-consistency --offline --repo .
           GOWORK=off xlibgate trust secret-redaction --repo . --path release/evidence
+      - name: Release metadata consistency
+        run: |
+          expected="$(cat VERSION)"
+          grep -q "table_version: ${expected}" .repo-contract.yaml
+          grep -q "latest_git_tag: ${expected}" .repo-contract.yaml
+          grep -q "Version[[:space:]]*=[[:space:]]*\"${expected}\"" pkg/clickhousex/version.go
+          grep -q "^## ${expected}" CHANGELOG.md
+          grep -q "\"version\": \"${expected}\"" release/manifest/latest.json
 
   secret-scan:
     runs-on: ubuntu-latest
