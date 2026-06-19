@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.5 - 2026-06-19
+
+- Raise the local release evidence from broad fake-driver coverage to exact 100.0% statement coverage across the module.
+- Add targeted branch coverage for default validation failures, canceled query setup, context-canceled close waits, timed retry waits, and retry-delay clamping.
+- Keep the runtime client API unchanged while adding a private adapter hook so native `clickhouse-go/v2` option conversion remains covered.
+- Remove the unreachable retry-loop return path so Staticcheck and the coverage gate agree on the executable surface.
+
 ## v1.0.4 - 2026-06-19
 
 - Add the complete ClickHouse client runtime surface: `Exec`, `Query`, `InsertBatch`, `Ping`, `Health`, `HealthCheck`, `Close`, and `CloseContext`.

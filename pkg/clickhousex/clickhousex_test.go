@@ -57,6 +57,10 @@ func cloneLabels(labels map[string]string) map[string]string {
 	return clone
 }
 
+func nilContext() context.Context {
+	return nil
+}
+
 type fakeConnector struct {
 	conn   driverConn
 	err    error
@@ -399,7 +403,7 @@ func TestNewUsesConnectorAndMetrics(t *testing.T) {
 	assertGauge(t, metrics, MetricClickhousePoolExhausted, 1, map[string]string{"name": "primary"})
 
 	metrics = &recordingMetrics{}
-	client, err = New(nil, validConfig(), WithMetrics(metrics), withConnector(connector))
+	client, err = New(nilContext(), validConfig(), WithMetrics(metrics), withConnector(connector))
 	if client != nil || err == nil || !IsKind(err, ErrorKindValidation) {
 		t.Fatalf("New(nil ctx) client=%#v err=%v", client, err)
 	}
@@ -418,7 +422,7 @@ func TestCloseAndPing(t *testing.T) {
 
 	conn := &fakeConn{}
 	client, metrics, _, _ := newTestClient(t, conn)
-	if err := client.CloseContext(nil); err == nil || err.Error() != "clickhousex: clickhousex.Close: context is required" {
+	if err := client.CloseContext(nilContext()); err == nil || err.Error() != "clickhousex: clickhousex.Close: context is required" {
 		t.Fatalf("CloseContext(nil ctx) = %v", err)
 	}
 	assertErrorCounter(t, metrics, "close", ErrorKindValidation)
@@ -426,7 +430,7 @@ func TestCloseAndPing(t *testing.T) {
 	if err := (*Client)(nil).Ping(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: client is nil" {
 		t.Fatalf("Ping(nil client) = %v", err)
 	}
-	if err := client.Ping(nil); err == nil || err.Error() != "clickhousex: clickhousex.Ping: context is required" {
+	if err := client.Ping(nilContext()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: context is required" {
 		t.Fatalf("Ping(nil ctx) = %v", err)
 	}
 	assertErrorCounter(t, metrics, "ping", ErrorKindValidation)

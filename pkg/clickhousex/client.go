@@ -390,17 +390,16 @@ func (c *Client) runWithRetry(ctx context.Context, op string, metricOp string, f
 		attempts = 1
 	}
 
-	var last error
-	for attempt := 1; attempt <= attempts; attempt++ {
+	for attempt := 1; ; attempt++ {
 		if err := ctx.Err(); err != nil {
 			return contextError(op, err)
 		}
 
-		last = fn()
+		last := fn()
 		if last == nil {
 			return nil
 		}
-		if !shouldRetry(last) || attempt == attempts {
+		if !shouldRetry(last) || attempt >= attempts {
 			return last
 		}
 
@@ -417,16 +416,10 @@ func (c *Client) runWithRetry(ctx context.Context, op string, metricOp string, f
 		select {
 		case <-timer.C:
 		case <-ctx.Done():
-			if !timer.Stop() {
-				select {
-				case <-timer.C:
-				default:
-				}
-			}
+			timer.Stop()
 			return contextError(op, ctx.Err())
 		}
 	}
-	return last
 }
 
 func (c *Client) retryDelay(attempt int) time.Duration {

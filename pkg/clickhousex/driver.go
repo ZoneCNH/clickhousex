@@ -45,12 +45,14 @@ type driverStats struct {
 
 type clickhouseConnector struct{}
 
+var openClickHouse = clickhouse.Open
+
 func (clickhouseConnector) Open(ctx context.Context, cfg Config) (driverConn, error) {
 	opt, err := cfg.clickhouseOptions()
 	if err != nil {
 		return nil, err
 	}
-	conn, err := clickhouse.Open(opt)
+	conn, err := openClickHouse(opt)
 	if err != nil {
 		return nil, operationError(ErrorKindConnection, "clickhousex.Open", err)
 	}
