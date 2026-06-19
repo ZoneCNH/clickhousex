@@ -110,13 +110,13 @@ func TestConfigValidate(t *testing.T) {
 		cfg  Config
 		want string
 	}{
-		{name: "missing name", cfg: func() Config { cfg := validConfig(); cfg.Name = ""; return cfg }(), want: "validation: Config.Validate: name is required"},
-		{name: "missing host", cfg: func() Config { cfg := validConfig(); cfg.Host = ""; return cfg }(), want: "validation: Config.Validate: host is required"},
-		{name: "negative port", cfg: func() Config { cfg := validConfig(); cfg.Port = -1; return cfg }(), want: "validation: Config.Validate: port must not be negative"},
-		{name: "negative max open", cfg: func() Config { cfg := validConfig(); cfg.MaxOpenConns = -1; return cfg }(), want: "validation: Config.Validate: max_open_conns must not be negative"},
-		{name: "negative max idle", cfg: func() Config { cfg := validConfig(); cfg.MaxIdleConns = -1; return cfg }(), want: "validation: Config.Validate: max_idle_conns must not be negative"},
-		{name: "negative lifetime", cfg: func() Config { cfg := validConfig(); cfg.ConnMaxLifetime = -1; return cfg }(), want: "validation: Config.Validate: conn_max_lifetime must not be negative"},
-		{name: "negative timeout", cfg: func() Config { cfg := validConfig(); cfg.Timeout = -1; return cfg }(), want: "validation: Config.Validate: timeout must not be negative"},
+		{name: "missing name", cfg: func() Config { cfg := validConfig(); cfg.Name = ""; return cfg }(), want: "clickhousex: Config.Validate: name is required"},
+		{name: "missing host", cfg: func() Config { cfg := validConfig(); cfg.Host = ""; return cfg }(), want: "clickhousex: Config.Validate: host is required"},
+		{name: "negative port", cfg: func() Config { cfg := validConfig(); cfg.Port = -1; return cfg }(), want: "clickhousex: Config.Validate: port must not be negative"},
+		{name: "negative max open", cfg: func() Config { cfg := validConfig(); cfg.MaxOpenConns = -1; return cfg }(), want: "clickhousex: Config.Validate: max_open_conns must not be negative"},
+		{name: "negative max idle", cfg: func() Config { cfg := validConfig(); cfg.MaxIdleConns = -1; return cfg }(), want: "clickhousex: Config.Validate: max_idle_conns must not be negative"},
+		{name: "negative lifetime", cfg: func() Config { cfg := validConfig(); cfg.ConnMaxLifetime = -1; return cfg }(), want: "clickhousex: Config.Validate: conn_max_lifetime must not be negative"},
+		{name: "negative timeout", cfg: func() Config { cfg := validConfig(); cfg.Timeout = -1; return cfg }(), want: "clickhousex: Config.Validate: timeout must not be negative"},
 	}
 
 	for _, tt := range tests {
@@ -178,8 +178,8 @@ func TestNew(t *testing.T) {
 	assertCounter(t, metrics, MetricClientCreatedTotal, map[string]string{"name": "primary"})
 
 	metrics = &recordingMetrics{}
-	client, err = New(nil, validConfig(), WithMetrics(metrics))
-	if client != nil || err == nil || err.Error() != "validation: clickhousex.New: context is required" {
+	client, err = New(nilContext(), validConfig(), WithMetrics(metrics))
+	if client != nil || err == nil || err.Error() != "clickhousex: clickhousex.New: context is required" {
 		t.Fatalf("New(nil ctx) client=%#v err=%v", client, err)
 	}
 	assertErrorCounter(t, metrics, "new", ErrorKindValidation)
@@ -206,12 +206,12 @@ func TestNew(t *testing.T) {
 func TestClose(t *testing.T) {
 	t.Parallel()
 
-	if err := (*Client)(nil).Close(context.Background()); err == nil || err.Error() != "validation: clickhousex.Close: client is nil" {
+	if err := (*Client)(nil).Close(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Close: client is nil" {
 		t.Fatalf("Close(nil client) = %v", err)
 	}
 
 	client, metrics := newTestClient(t)
-	if err := client.Close(nil); err == nil || err.Error() != "validation: clickhousex.Close: context is required" {
+	if err := client.Close(nilContext()); err == nil || err.Error() != "clickhousex: clickhousex.Close: context is required" {
 		t.Fatalf("Close(nil ctx) = %v", err)
 	}
 	assertErrorCounter(t, metrics, "close", ErrorKindValidation)
@@ -225,7 +225,7 @@ func TestClose(t *testing.T) {
 	assertErrorCounter(t, metrics, "close", ErrorKindUnavailable)
 
 	client = &Client{metrics: metrics}
-	if err := client.Close(context.Background()); err == nil || err.Error() != "validation: clickhousex.Close: client is not initialized" {
+	if err := client.Close(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Close: client is not initialized" {
 		t.Fatalf("Close(uninitialized) = %v", err)
 	}
 
@@ -249,12 +249,12 @@ func TestClose(t *testing.T) {
 func TestPing(t *testing.T) {
 	t.Parallel()
 
-	if err := (*Client)(nil).Ping(context.Background()); err == nil || err.Error() != "validation: clickhousex.Ping: client is nil" {
+	if err := (*Client)(nil).Ping(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: client is nil" {
 		t.Fatalf("Ping(nil client) = %v", err)
 	}
 
 	client, metrics := newTestClient(t)
-	if err := client.Ping(nil); err == nil || err.Error() != "validation: clickhousex.Ping: context is required" {
+	if err := client.Ping(nilContext()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: context is required" {
 		t.Fatalf("Ping(nil ctx) = %v", err)
 	}
 	assertErrorCounter(t, metrics, "ping", ErrorKindValidation)
@@ -268,13 +268,13 @@ func TestPing(t *testing.T) {
 	assertErrorCounter(t, metrics, "ping", ErrorKindTimeout)
 
 	client = &Client{metrics: metrics}
-	if err := client.Ping(context.Background()); err == nil || err.Error() != "validation: clickhousex.Ping: client is not initialized" {
+	if err := client.Ping(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: client is not initialized" {
 		t.Fatalf("Ping(uninitialized) = %v", err)
 	}
 
 	client, metrics = newTestClient(t)
 	client.closed = true
-	if err := client.Ping(context.Background()); err == nil || err.Error() != "unavailable: clickhousex.Ping: client is closed" || !IsKind(err, ErrorKindUnavailable) {
+	if err := client.Ping(context.Background()); err == nil || err.Error() != "clickhousex: clickhousex.Ping: client is closed" || !IsKind(err, ErrorKindUnavailable) {
 		t.Fatalf("Ping(closed) = %v", err)
 	}
 	assertErrorCounter(t, metrics, "ping", ErrorKindUnavailable)
@@ -291,7 +291,7 @@ func TestHealthCheck(t *testing.T) {
 	status := (*Client)(nil).HealthCheck(context.Background())
 	assertHealth(t, status, "clickhousex", HealthUnhealthy, "client is not initialized")
 
-	status = (&Client{}).HealthCheck(nil)
+	status = (&Client{}).HealthCheck(nilContext())
 	assertHealth(t, status, "clickhousex", HealthUnhealthy, "context is required")
 
 	client, metrics := newTestClient(t)
@@ -358,20 +358,23 @@ func TestErrors(t *testing.T) {
 
 	base := errors.New("root")
 	err := NewError(ErrorKindAuth, "login", "denied", false)
-	if err.Error() != "auth: login: denied" {
+	if err.Error() != "clickhousex: login: denied" {
 		t.Fatalf("NewError().Error() = %q", err.Error())
+	}
+	if got := (&Error{Kind: ErrorKindConflict}).Error(); got != "clickhousex: conflict" {
+		t.Fatalf("kind-only Error().Error() = %q", got)
 	}
 	if err.Unwrap() != nil {
 		t.Fatalf("NewError().Unwrap() = %v, want nil", err.Unwrap())
 	}
 
 	manual := &Error{Kind: ErrorKindInternal, Op: "manual", Cause: base}
-	if manual.Error() != "internal: manual: root" {
+	if manual.Error() != "clickhousex: manual: root" {
 		t.Fatalf("manual Error().Error() = %q", manual.Error())
 	}
 
 	wrapped := WrapError(ErrorKindConnection, "dial", "", true, base)
-	if wrapped.Error() != "connection: dial: root" {
+	if wrapped.Error() != "clickhousex: dial: root" {
 		t.Fatalf("WrapError().Error() = %q", wrapped.Error())
 	}
 	if !errors.Is(wrapped, base) {
@@ -422,6 +425,10 @@ func newTestClient(t *testing.T) (*Client, *recordingMetrics) {
 		t.Fatalf("New test client: %v", err)
 	}
 	return client, metrics
+}
+
+func nilContext() context.Context {
+	return nil
 }
 
 func assertCounter(t *testing.T, metrics *recordingMetrics, name string, labels map[string]string) {
