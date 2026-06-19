@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.7 - 2026-06-19
+
+- Add a default-skipped live ClickHouse soak gate that repeatedly writes, counts, and reads back rows using environment-supplied dev credentials.
+- Add reproducible fake-driver benchmarks for `Exec`, query/scan, batch insert, and health checks.
+- Add `make soak-test`, `make benchmark`, and `make profile` so local release evidence can include soak plus CPU/memory profile artifacts without committing generated profiles.
+
 ## v1.0.6 - 2026-06-19
 
 - Add default-skipped live ClickHouse integration coverage for `New`, `Ping`, `HealthCheck`, `Exec`, `InsertBatch`, `Query`, `Rows` metadata, scan, and cleanup against a real development instance.

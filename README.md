@@ -75,6 +75,9 @@ func main() {
 make build   # 编译
 make test    # 运行测试
 make integration-test # 运行显式启用的真实 ClickHouse 集成测试
+make soak-test # 运行显式启用的真实 ClickHouse soak 测试
+make benchmark # 运行本地 fake-driver 基准
+make profile # 生成本地 CPU / memory profile
 make lint    # 代码检查
 make vet     # 静态分析
 make fmt     # 格式化
@@ -86,4 +89,19 @@ make fmt     # 格式化
 
 ```bash
 CLICKHOUSEX_RUN_INTEGRATION=1 go test -count=1 -run TestClickHouseLiveIntegration -v ./pkg/clickhousex
+```
+
+需要运行短周期 soak 复验时，额外设置 `CLICKHOUSEX_RUN_SOAK=1`。可用 `CLICKHOUSEX_SOAK_DURATION` 和 `CLICKHOUSEX_SOAK_INTERVAL` 控制时长与间隔：
+
+```bash
+CLICKHOUSEX_RUN_INTEGRATION=1 CLICKHOUSEX_RUN_SOAK=1 CLICKHOUSEX_SOAK_DURATION=60s CLICKHOUSEX_SOAK_INTERVAL=100ms go test -count=1 -run TestClickHouseLiveSoak -v ./pkg/clickhousex
+```
+
+## Benchmark 与 Profile
+
+本地 benchmark 使用 fake driver，不连接外部 ClickHouse：
+
+```bash
+make benchmark
+PROFILE_DIR=/tmp/clickhousex-profile make profile
 ```
