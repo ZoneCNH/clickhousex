@@ -45,15 +45,20 @@ func (e *Error) Error() string {
 	if e == nil {
 		return ""
 	}
-	message := string(e.Kind)
+	detail := e.Message
+	if detail == "" && e.Cause != nil {
+		detail = e.Cause.Error()
+	}
+
+	message := "clickhousex"
 	if e.Op != "" {
 		message += ": " + e.Op
 	}
-	if e.Message != "" {
-		message += ": " + e.Message
+	if detail != "" {
+		message += ": " + detail
 	}
-	if e.Message == "" && e.Cause != nil {
-		message += ": " + e.Cause.Error()
+	if e.Op == "" && detail == "" {
+		message += ": " + string(e.Kind)
 	}
 	return message
 }

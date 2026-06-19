@@ -24,8 +24,19 @@ type Metrics interface {
 // NoopMetrics is a Metrics implementation that discards all observations.
 type NoopMetrics struct{}
 
-func (NoopMetrics) IncCounter(name string, labels map[string]string) {}
+func (NoopMetrics) IncCounter(name string, labels map[string]string) {
+	_ = name
+	_ = labels
+}
 
-func (NoopMetrics) ObserveHistogram(name string, value float64, labels map[string]string) {}
+func (NoopMetrics) ObserveHistogram(name string, value float64, labels map[string]string) {
+	_ = name
+	_ = value
+	_ = labels
+}
 
-func (NoopMetrics) SetGauge(name string, value float64, labels map[string]string) {}
+func (NoopMetrics) SetGauge(name string, value float64, labels map[string]string) {
+	_ = name
+	_ = value
+	_ = labels
+}
