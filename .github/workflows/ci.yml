@@ -29,10 +29,7 @@ jobs:
       - name: Vet
         run: go vet ./...
       - name: Coverage
-        run: |
-          go test ./... -covermode=atomic -coverprofile=coverage.out
-          go tool cover -func=coverage.out | tee coverage.txt
-          awk '/^total:/ { if ($3 != "100.0%") { print "coverage " $3 " is below required 100.0%"; exit 1 } }' coverage.txt
+        run: make test-coverage
       - name: Dependency boundary
         run: |
           go list -deps ./... > deps.txt
