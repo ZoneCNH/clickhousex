@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "module": "clickhousex",
+  "status": "blocked",
+  "reason": "Factory Grade retrospective is intentionally blocked until a passing factory workflow archives multi-hour soak and external consumer rollout evidence."
+}

@@ -1,7 +1,7 @@
 {
   "module": "github.com/ZoneCNH/clickhousex",
-  "version": "v1.0.8",
+  "version": "v1.0.9",
   "release_date": "2026-06-19",
-  "scope": "re-verification-release",
+  "scope": "production-gate-hardening-release",
   "status": "released"
 }

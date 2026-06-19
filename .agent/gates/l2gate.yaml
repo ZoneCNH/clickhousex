@@ -1,0 +1,33 @@
+schema_version: "1.0"
+module: clickhousex
+release_gate:
+  target: L2-T3
+  command: make release-check
+  min_score: 85
+  release_allowed: true
+  required_profiles:
+    - unit
+    - contract
+    - integration
+    - chaos
+    - benchmark
+    - adoption
+factory_gate:
+  target: L2-T4
+  command: make factory-check
+  min_score: 95
+  release_allowed: true
+  factory_grade_allowed: true
+  required_profiles:
+    - unit
+    - contract
+    - integration
+    - chaos
+    - benchmark
+    - adoption
+    - retrospective
+  hard_requirements:
+    - release_level_actual must be L2-T4
+    - factory_grade must be true
+    - factory_blockers must be empty
+    - retrospective status must be pass

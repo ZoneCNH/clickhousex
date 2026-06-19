@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "profile": "chaos",
+  "status": "pass",
+  "source": "pkg/clickhousex/coverage_test.go",
+  "commands": [
+    "make test-chaos"
+  ],
+  "covered_failures": [
+    "retry helper branches",
+    "client failure branches",
+    "health failure branches",
+    "query and insert error mapping"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "module": "clickhousex",
+  "target_release_level": "L2-T4",
+  "release_level_actual": "L2-T3",
+  "commands": {
+    "unit": "make test-unit",
+    "contract": "make test-contract",
+    "integration": "make test-integration",
+    "chaos": "make test-chaos",
+    "benchmark": "make test-bench",
+    "adoption": "make test-adoption",
+    "architecture": "make test-arch",
+    "security": "make test-security",
+    "release": "make release-check",
+    "factory": "make factory-check"
+  }
+}

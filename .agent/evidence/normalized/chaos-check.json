@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "profile": "chaos",
+  "status": "pass",
+  "failure_mapping": "pass",
+  "retry_and_health_failures": "pass",
+  "evidence": ".agent/evidence/raw/chaos-test.json"
+}

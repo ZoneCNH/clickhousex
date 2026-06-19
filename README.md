@@ -72,16 +72,31 @@ func main() {
 ## 构建与测试
 
 ```bash
-make build   # 编译
-make test    # 运行测试
-make integration-test # 运行显式启用的真实 ClickHouse 集成测试
-make soak-test # 运行显式启用的真实 ClickHouse soak 测试
-make benchmark # 运行本地 fake-driver 基准
-make profile # 生成本地 CPU / memory profile
-make lint    # 代码检查
-make vet     # 静态分析
-make fmt     # 格式化
+make build         # 编译
+make test-unit     # 单元测试
+make test-race     # race 测试
+make test-coverage # 100.0% 覆盖率门禁
+make test-contract # L2 契约测试切片
+make test-chaos    # 重试、错误映射、故障分支切片
+make test-adoption # 典型消费方 API 使用切片
+make test-arch     # L2 依赖边界检查
+make test-security # secret 扫描
+make integration-test # 显式启用的真实 ClickHouse 集成测试
+make soak-test        # 显式启用的真实 ClickHouse soak 测试
+make benchmark     # 本地 fake-driver 基准
+make profile       # 生成本地 CPU / memory profile
+make release-check # L2-T3 生产发布门禁
+make factory-check # L2-T4 Factory Grade 门禁
+make lint          # 代码检查
+make vet           # 静态分析
+make fmt           # 格式化
 ```
+
+## 生产级门禁
+
+`make release-check` 是当前可本地闭环的生产发布门禁，覆盖 build、unit、race、100.0% coverage、vet、contract、chaos、benchmark、adoption、架构边界、安全扫描和 `.agent/evidence` 证据完整性。通过该门禁表示模块达到 L2-T3 release-ready。GitHub Actions CI 已同步执行常规质量门禁、release metadata consistency、secret scan 和真实 ClickHouse integration job。
+
+`make factory-check` 是 L2-T4 Factory Grade 硬门禁。当前基线刻意保持失败，直到归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory release archive 证据后，才能把 `.agent/evidence/decision/release-readiness.json` 提升为 `factory_grade=true`。`.github/workflows/factory-grade.yml` 提供手动/定时 factory evidence 采集入口。
 
 ## Live 集成测试
 

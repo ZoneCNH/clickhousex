@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "profile": "adoption",
+  "status": "pass",
+  "source": "README.md and public API tests",
+  "commands": [
+    "make test-adoption"
+  ],
+  "scope": "local public API adoption harness",
+  "factory_grade_gap": "external consumer rollout evidence is still required"
+}

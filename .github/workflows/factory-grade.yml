@@ -1,0 +1,79 @@
+name: Factory Grade Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      soak_duration:
+        description: Production-duration live soak duration.
+        required: true
+        default: "3h"
+      soak_interval:
+        description: Delay between soak iterations.
+        required: true
+        default: "250ms"
+  schedule:
+    - cron: "17 18 * * 0"
+
+permissions:
+  contents: read
+
+jobs:
+  factory-grade-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 260
+    services:
+      clickhouse:
+        image: clickhouse/clickhouse-server:24
+        ports:
+          - 8123:8123
+          - 9000:9000
+        env:
+          CLICKHOUSE_DB: test
+          CLICKHOUSE_USER: default
+          CLICKHOUSE_PASSWORD: ""
+    env:
+      CLICKHOUSEX_RUN_INTEGRATION: "1"
+      CLICKHOUSEX_TEST_DSN: "clickhouse://default:@localhost:9000/test"
+      SOAK_DURATION: ${{ github.event.inputs.soak_duration || '3h' }}
+      SOAK_INTERVAL: ${{ github.event.inputs.soak_interval || '250ms' }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version: "1.23"
+      - name: Wait for ClickHouse
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8123/ping >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "ClickHouse did not become ready"
+          exit 1
+      - name: Release readiness gate
+        run: make release-check
+      - name: Live integration baseline
+        run: GOWORK=off go test -count=1 -run TestClickHouseLiveIntegration -v ./pkg/clickhousex
+      - name: Production-duration live soak
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/factory-artifacts"
+          CLICKHOUSEX_RUN_SOAK=1 \
+          CLICKHOUSEX_SOAK_DURATION="${SOAK_DURATION}" \
+          CLICKHOUSEX_SOAK_INTERVAL="${SOAK_INTERVAL}" \
+          GOWORK=off go test -count=1 -run TestClickHouseLiveSoak -v ./pkg/clickhousex \
+            | tee "${RUNNER_TEMP}/factory-artifacts/live-soak.log"
+      - name: Benchmark profiles
+        run: |
+          set -euo pipefail
+          PROFILE_DIR="${RUNNER_TEMP}/clickhousex-factory-profile" make profile
+          cp -R .agent/evidence "${RUNNER_TEMP}/factory-artifacts/evidence"
+          cp -R release/evidence "${RUNNER_TEMP}/factory-artifacts/release-evidence"
+      - name: Upload factory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: clickhousex-factory-evidence
+          path: |
+            ${{ runner.temp }}/factory-artifacts
+            ${{ runner.temp }}/clickhousex-factory-profile

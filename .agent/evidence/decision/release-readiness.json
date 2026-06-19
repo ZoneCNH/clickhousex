@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "module": "clickhousex",
+  "release_version": "v1.0.9",
+  "target_release_level": "L2-T4",
+  "release_level_actual": "L2-T3",
+  "factory_grade": false,
+  "release_allowed": true,
+  "score": 92,
+  "hard_failure_count": 0,
+  "profile_status": {
+    "unit": "pass",
+    "contract": "pass",
+    "integration": "pass",
+    "chaos": "pass",
+    "benchmark": "pass",
+    "adoption": "pass",
+    "retrospective": "blocked"
+  },
+  "ci_status": "configured",
+  "coverage_total": "100.0%",
+  "factory_blockers": [
+    "production-duration multi-hour live soak evidence is not archived",
+    "external consumer rollout evidence is not archived",
+    "factory-grade release archive has not been produced from a passing factory workflow"
+  ],
+  "required_evidence": [
+    ".agent/evidence/raw/unit-test.json",
+    ".agent/evidence/raw/contract-test.json",
+    ".agent/evidence/raw/integration-test.json",
+    ".agent/evidence/raw/chaos-test.json",
+    ".agent/evidence/raw/adoption-test.json",
+    ".agent/evidence/raw/benchmark.txt",
+    ".agent/evidence/normalized/contract-check.json",
+    ".agent/evidence/normalized/integration-check.json",
+    ".agent/evidence/normalized/chaos-check.json",
+    ".agent/evidence/normalized/adoption-check.json",
+    ".agent/evidence/normalized/layer-guard.json",
+    ".agent/evidence/normalized/secret-scan.json",
+    ".agent/evidence/decision/test-plan.json",
+    ".agent/evidence/trace/traceability-matrix.json"
+  ]
+}

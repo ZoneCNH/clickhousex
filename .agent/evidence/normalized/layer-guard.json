@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "profile": "layer-guard",
+  "status": "pass",
+  "forbidden_dependencies": [
+    "github.com/ZoneCNH/configx",
+    "github.com/ZoneCNH/redisx",
+    "github.com/ZoneCNH/postgresx",
+    "github.com/ZoneCNH/kafkax",
+    "github.com/ZoneCNH/natsx",
+    "github.com/ZoneCNH/taosx",
+    "github.com/ZoneCNH/ossx"
+  ],
+  "command": "make test-arch"
+}
