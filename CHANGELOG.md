@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.9 - 2026-06-19
+
+- Add repository CI and a manual/scheduled factory evidence workflow, with pinned actions and a release metadata consistency job.
+- Promote `make test-coverage` into the release gate and enforce exact 100.0% total coverage without leaving coverage artifacts in the worktree.
+- Add machine-readable L2 evidence, `make release-check`, and `make factory-check`; keep the release at L2-T3 until multi-hour soak, external rollout, and factory artifact evidence are archived.
+- Re-run the local dev ClickHouse integration and 60s soak gates from environment-supplied configuration without committing credential values.
+
 ## v1.0.8 - 2026-06-19
 
 - Re-verify the complete client release gate against the local dev ClickHouse instance: unit, race, vet, build, lint, 100.0% statement coverage, live integration, and a 60s live soak (366 iterations).

@@ -29,7 +29,7 @@ common / columnstore / batch_insert / ttl / partition / streaming_query / async_
 ```yaml
 repo: clickhousex
 layer: L2
-version: "1.0"
+version: "v1.0.9"
 target_release_level: L2-T4
 release_level_actual: L2-T3
 release_allowed: true
@@ -202,7 +202,7 @@ L2-T4:
 ## 8. Rollout
 
 ```text
-当前 release_level_actual 为 L2-T3：columnstore/batch_insert、chaos、benchmark、adoption、layer guard、secret scan 和 release-readiness 已纳入本地门禁。
+当前 release_level_actual 为 L2-T3：columnstore/batch_insert、chaos、benchmark、adoption、100.0% coverage、layer guard、secret scan 和 release-readiness 已纳入本地门禁。
 L2-T4 仍阻塞：需要归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory-grade release archive。
 ttl/partition/streaming_query/async_insert 属于后续扩展能力，不能替代 L2-T4 所需的生产运行证据。
 ```

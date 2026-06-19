@@ -1,11 +1,12 @@
 {
   "schema_version": "1.0",
   "module": "clickhousex",
+  "release_version": "v1.0.9",
   "target_release_level": "L2-T4",
   "release_level_actual": "L2-T3",
   "factory_grade": false,
   "release_allowed": true,
-  "score": 90,
+  "score": 92,
   "hard_failure_count": 0,
   "profile_status": {
     "unit": "pass",
@@ -16,6 +17,8 @@
     "adoption": "pass",
     "retrospective": "blocked"
   },
+  "ci_status": "configured",
+  "coverage_total": "100.0%",
   "factory_blockers": [
     "production-duration multi-hour live soak evidence is not archived",
     "external consumer rollout evidence is not archived",

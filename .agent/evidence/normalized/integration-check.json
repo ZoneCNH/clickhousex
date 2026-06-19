@@ -4,6 +4,7 @@
   "status": "pass",
   "live_clickhouse_test": "pass",
   "short_soak_test": "pass",
+  "short_soak_iterations": 329,
   "factory_grade_gap": "multi-hour soak archive missing",
   "evidence": ".agent/evidence/raw/integration-test.json"
 }

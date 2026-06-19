@@ -1,5 +1,6 @@
 schema_version: "1.0"
 module: clickhousex
+release_version: v1.0.9
 layer: L2
 provider: clickhouse
 target_release_level: L2-T4

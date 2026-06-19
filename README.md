@@ -75,6 +75,7 @@ func main() {
 make build         # 编译
 make test-unit     # 单元测试
 make test-race     # race 测试
+make test-coverage # 100.0% 覆盖率门禁
 make test-contract # L2 契约测试切片
 make test-chaos    # 重试、错误映射、故障分支切片
 make test-adoption # 典型消费方 API 使用切片
@@ -93,9 +94,9 @@ make fmt           # 格式化
 
 ## 生产级门禁
 
-`make release-check` 是当前可本地闭环的生产发布门禁，覆盖 build、unit、race、vet、contract、chaos、benchmark、adoption、架构边界、安全扫描和 `.agent/evidence` 证据完整性。通过该门禁表示模块达到 L2-T3 release-ready。
+`make release-check` 是当前可本地闭环的生产发布门禁，覆盖 build、unit、race、100.0% coverage、vet、contract、chaos、benchmark、adoption、架构边界、安全扫描和 `.agent/evidence` 证据完整性。通过该门禁表示模块达到 L2-T3 release-ready。GitHub Actions CI 已同步执行常规质量门禁、release metadata consistency、secret scan 和真实 ClickHouse integration job。
 
-`make factory-check` 是 L2-T4 Factory Grade 硬门禁。当前基线刻意保持失败，直到归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory release archive 证据后，才能把 `.agent/evidence/decision/release-readiness.json` 提升为 `factory_grade=true`。
+`make factory-check` 是 L2-T4 Factory Grade 硬门禁。当前基线刻意保持失败，直到归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory release archive 证据后，才能把 `.agent/evidence/decision/release-readiness.json` 提升为 `factory_grade=true`。`.github/workflows/factory-grade.yml` 提供手动/定时 factory evidence 采集入口。
 
 ## Live 集成测试
 
