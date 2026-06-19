@@ -1,4 +1,4 @@
-.PHONY: build test test-unit test-race integration-test soak-test benchmark test-bench profile lint vet fmt l2-plan test-contract test-integration test-chaos test-adoption test-arch test-security evidence release-check factory-check
+.PHONY: build test test-unit test-race test-coverage integration-test soak-test benchmark test-bench profile lint vet fmt l2-plan test-contract test-integration test-chaos test-adoption test-arch test-security evidence release-check factory-check
 
 PROFILE_DIR ?= /tmp/clickhousex-profile
 FORBIDDEN_L2_DEPS := (configx|redisx|postgresx|kafkax|natsx|taosx|ossx)
@@ -15,6 +15,11 @@ test-unit:
 
 test-race:
 	GOWORK=off go test -race -count=1 ./...
+
+test-coverage:
+	GOWORK=off go test -count=1 ./... -covermode=atomic -coverpkg=./... -coverprofile=coverage.out
+	GOWORK=off go tool cover -func=coverage.out | tee coverage.txt
+	@awk '/^total:/ { if ($$3 != "100.0%") { print "coverage " $$3 " is below required 100.0%"; exit 1 } found=1 } END { if (!found) { print "coverage total not found"; exit 1 } }' coverage.txt
 
 integration-test:
 	CLICKHOUSEX_RUN_INTEGRATION=1 GOWORK=off go test -count=1 -run TestClickHouseLiveIntegration -v ./pkg/clickhousex
@@ -86,7 +91,7 @@ test-security:
 evidence:
 	sh scripts/release-check.sh release .
 
-release-check: build test-unit test-race vet test-contract test-chaos test-bench test-adoption test-arch test-security evidence
+release-check: build test-unit test-race test-coverage vet test-contract test-chaos test-bench test-adoption test-arch test-security evidence
 
 factory-check:
 	sh scripts/release-check.sh factory .
