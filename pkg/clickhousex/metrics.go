@@ -12,6 +12,13 @@ const (
 	MetricClientInflight               = "client_inflight"
 	MetricClickhouseQueriesTotal       = "clickhousex_queries_total"
 	MetricClickhouseBatchInsertsTotal  = "clickhousex_batch_inserts_total"
+	MetricClickhouseQueryDuration      = "clickhousex.query.duration"
+	MetricClickhouseWriteDuration      = "clickhousex.write.duration"
+	MetricClickhouseWriteRows          = "clickhousex.write.rows"
+	MetricClickhouseWriteBytes         = "clickhousex.write.bytes"
+	MetricClickhousePoolActive         = "clickhousex.pool.active"
+	MetricClickhousePoolIdle           = "clickhousex.pool.idle"
+	MetricClickhousePoolExhausted      = "clickhousex.pool.exhausted"
 )
 
 // Metrics defines the hook interface for observability instrumentation.

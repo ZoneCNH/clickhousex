@@ -18,10 +18,28 @@ const (
 type HealthStatus struct {
 	Name      string            `json:"name"`
 	Status    HealthStatusValue `json:"status"`
+	Ready     bool              `json:"ready"`
+	Live      bool              `json:"live"`
 	Message   string            `json:"message,omitempty"`
 	CheckedAt time.Time         `json:"checked_at"`
 	LatencyMs int64             `json:"latency_ms"`
 	Metadata  map[string]string `json:"metadata,omitempty"`
+}
+
+// Health returns a best-effort health snapshot using the configured timeout.
+func (c *Client) Health() HealthStatus {
+	timeout := DefaultTimeout
+	if c != nil {
+		c.mu.Lock()
+		if c.cfg.Timeout > 0 {
+			timeout = c.cfg.Timeout
+		}
+		c.mu.Unlock()
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return c.HealthCheck(ctx)
 }
 
 // HealthCheck performs a health probe against the client.
@@ -31,7 +49,7 @@ func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 	var metrics Metrics
 	initialized := false
 	closed := true
-	var timeout time.Duration
+	var conn driverConn
 
 	if c != nil {
 		c.mu.Lock()
@@ -39,106 +57,46 @@ func (c *Client) HealthCheck(ctx context.Context) HealthStatus {
 		metrics = c.metrics
 		initialized = c.initialized
 		closed = c.closed
-		timeout = c.cfg.Timeout
+		conn = c.conn
 		c.mu.Unlock()
 		if name == "" {
 			name = "clickhousex"
 		}
 	}
 
+	status := func(value HealthStatusValue, ready bool, live bool, message string) HealthStatus {
+		result := HealthStatus{
+			Name:      name,
+			Status:    value,
+			Ready:     ready,
+			Live:      live,
+			Message:   message,
+			CheckedAt: time.Now(),
+			LatencyMs: time.Since(start).Milliseconds(),
+		}
+		recordHealthMetric(metrics, result)
+		return result
+	}
+
 	if ctx == nil {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "context is required",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
-		recordHealthMetric(metrics, status)
-		return status
+		return status(HealthUnhealthy, false, false, "context is required")
 	}
-
 	if err := ctx.Err(); err != nil {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   err.Error(),
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
-		recordHealthMetric(metrics, status)
-		return status
+		return status(HealthUnhealthy, false, false, err.Error())
 	}
-
 	if !initialized {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "client is not initialized",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
-		recordHealthMetric(metrics, status)
-		return status
+		return status(HealthUnhealthy, false, false, "client is not initialized")
 	}
-
 	if closed {
-		status := HealthStatus{
-			Name:      name,
-			Status:    HealthUnhealthy,
-			Message:   "client is closed",
-			CheckedAt: time.Now(),
-			LatencyMs: time.Since(start).Milliseconds(),
-		}
-		recordHealthMetric(metrics, status)
-		return status
+		return status(HealthUnhealthy, false, false, "client is closed")
 	}
-
-	if timeout > 0 {
-		if deadline, ok := ctx.Deadline(); ok {
-			remaining := time.Until(deadline)
-			if remaining <= 0 {
-				message := context.DeadlineExceeded.Error()
-				if err := ctx.Err(); err != nil {
-					message = err.Error()
-				}
-				status := HealthStatus{
-					Name:      name,
-					Status:    HealthUnhealthy,
-					Message:   message,
-					CheckedAt: time.Now(),
-					LatencyMs: time.Since(start).Milliseconds(),
-				}
-				recordHealthMetric(metrics, status)
-				return status
-			}
-			if remaining < timeout {
-				status := HealthStatus{
-					Name:      name,
-					Status:    HealthDegraded,
-					Message:   "context deadline is shorter than client timeout",
-					CheckedAt: time.Now(),
-					LatencyMs: time.Since(start).Milliseconds(),
-					Metadata: map[string]string{
-						"reason":  "deadline_below_timeout",
-						"timeout": timeout.String(),
-					},
-				}
-				recordHealthMetric(metrics, status)
-				return status
-			}
-		}
+	if conn == nil {
+		return status(HealthUnhealthy, false, false, "client connection is nil")
 	}
-
-	status := HealthStatus{
-		Name:      name,
-		Status:    HealthHealthy,
-		Message:   "ok",
-		CheckedAt: time.Now(),
-		LatencyMs: time.Since(start).Milliseconds(),
+	if err := conn.Ping(ctx); err != nil {
+		return status(HealthUnhealthy, false, true, err.Error())
 	}
-	recordHealthMetric(metrics, status)
-	return status
+	return status(HealthHealthy, true, true, "ok")
 }
 
 func recordHealthMetric(metrics Metrics, status HealthStatus) {

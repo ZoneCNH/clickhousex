@@ -1,7 +1,7 @@
 {
   "module": "github.com/ZoneCNH/clickhousex",
-  "version": "v1.0.3",
+  "version": "v1.0.4",
   "release_date": "2026-06-19",
-  "scope": "foundation-release-ci-alignment",
+  "scope": "complete-clickhouse-client",
   "status": "released"
 }

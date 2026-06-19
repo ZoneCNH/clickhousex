@@ -3,23 +3,36 @@ package clickhousex
 import (
 	"context"
 	"errors"
+	"io"
+	"strings"
 )
 
 // ErrorKind classifies the origin of an error.
 type ErrorKind string
 
 const (
-	ErrorKindConfig      ErrorKind = "config"
-	ErrorKindValidation  ErrorKind = "validation"
-	ErrorKindConnection  ErrorKind = "connection"
-	ErrorKindUnavailable ErrorKind = "unavailable"
-	ErrorKindTimeout     ErrorKind = "timeout"
-	ErrorKindAuth        ErrorKind = "auth"
-	ErrorKindConflict    ErrorKind = "conflict"
-	ErrorKindRateLimit   ErrorKind = "rate_limit"
-	ErrorKindInternal    ErrorKind = "internal"
-	ErrorKindQuery       ErrorKind = "query"
-	ErrorKindBatch       ErrorKind = "batch"
+	ErrorKindConfig              ErrorKind = "config"
+	ErrorKindValidation          ErrorKind = "validation"
+	ErrorKindConnection          ErrorKind = "connection"
+	ErrorKindUnavailable         ErrorKind = "unavailable"
+	ErrorKindTimeout             ErrorKind = "timeout"
+	ErrorKindAuth                ErrorKind = "auth"
+	ErrorKindConflict            ErrorKind = "conflict"
+	ErrorKindRateLimit           ErrorKind = "rate_limit"
+	ErrorKindInternal            ErrorKind = "internal"
+	ErrorKindQuery               ErrorKind = "query"
+	ErrorKindBatch               ErrorKind = "batch"
+	ErrorKindEmptyColumns        ErrorKind = "empty_columns"
+	ErrorKindColumnCountMismatch ErrorKind = "column_count_mismatch"
+	ErrorKindTypeMismatch        ErrorKind = "type_mismatch"
+	ErrorKindTableNotFound       ErrorKind = "table_not_found"
+)
+
+var (
+	ErrEmptyColumns        = NewError(ErrorKindEmptyColumns, "", "empty columns", false)
+	ErrColumnCountMismatch = NewError(ErrorKindColumnCountMismatch, "", "column count mismatch", false)
+	ErrTypeMismatch        = NewError(ErrorKindTypeMismatch, "", "type mismatch", false)
+	ErrTableNotFound       = NewError(ErrorKindTableNotFound, "", "table not found", false)
 )
 
 // Error is the structured error type for clickhousex.
@@ -70,6 +83,17 @@ func (e *Error) Unwrap() error {
 	return e.Cause
 }
 
+func (e *Error) Is(target error) bool {
+	if e == nil || target == nil {
+		return false
+	}
+	var targetError *Error
+	if errors.As(target, &targetError) {
+		return targetError.Kind != "" && e.Kind == targetError.Kind
+	}
+	return false
+}
+
 // IsKind checks whether err contains an Error with the given kind.
 func IsKind(err error, kind ErrorKind) bool {
 	var target *Error
@@ -104,6 +128,73 @@ func contextError(op string, cause error) *Error {
 		retryable = true
 	}
 	return newError(kind, op, "", retryable, cause)
+}
+
+func operationError(kind ErrorKind, op string, err error) *Error {
+	if err == nil {
+		return nil
+	}
+	var typed *Error
+	if errors.As(err, &typed) {
+		return typed
+	}
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return contextError(op, err)
+	}
+	retryable := isRetryableError(err)
+	classified := kind
+	if retryable {
+		classified = ErrorKindConnection
+	}
+	if isTableNotFoundError(err) {
+		classified = ErrorKindTableNotFound
+		retryable = false
+	}
+	return newError(classified, op, "", retryable, err)
+}
+
+func isRetryableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var typed *Error
+	if errors.As(err, &typed) {
+		return typed.Retryable
+	}
+	if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, io.EOF) {
+		return true
+	}
+	message := strings.ToLower(err.Error())
+	for _, marker := range []string{
+		"connection refused",
+		"connection reset",
+		"connection lost",
+		"broken pipe",
+		"i/o timeout",
+		"timeout",
+		"eof",
+		"server closed",
+		"bad connection",
+		"acquire conn timeout",
+	} {
+		if strings.Contains(message, marker) {
+			return true
+		}
+	}
+	return false
+}
+
+func isTableNotFoundError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, ErrTableNotFound) {
+		return true
+	}
+	message := strings.ToLower(err.Error())
+	return strings.Contains(message, "unknown table") ||
+		strings.Contains(message, "table") && strings.Contains(message, "doesn't exist") ||
+		strings.Contains(message, "table") && strings.Contains(message, "does not exist")
 }
 
 func errorKind(err error) ErrorKind {
