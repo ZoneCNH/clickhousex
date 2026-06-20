@@ -384,6 +384,15 @@ func (c *Client) beginOperation(ctx context.Context, op string) (driverConn, fun
 	return c.conn, c.wg.Done, nil
 }
 
+// runWithRetry executes fn with exponential back-off, retrying only when
+// shouldRetry(err) is true (i.e. transient ClickHouse errors).
+//
+// This loop is intentionally kept local rather than delegated to
+// resiliencx/retry because resiliencx.retry.Do has no mechanism to
+// short-circuit on non-retryable errors — wrapping a non-retryable error
+// would still exhaust all MaxAttempts. The local loop is the minimal
+// implementation that preserves the shouldRetry guard.
+// See: github.com/ZoneCNH/resiliencx/pkg/resiliencx/retry/retry.go
 func (c *Client) runWithRetry(ctx context.Context, op string, metricOp string, fn func() error) error {
 	attempts := c.retry.MaxAttempts
 	if attempts <= 0 {
