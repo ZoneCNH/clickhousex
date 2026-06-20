@@ -1,49 +1,41 @@
 package clickhousex
 
+import obs "github.com/ZoneCNH/observex/pkg/observex"
+
+// MetricClient* constants are aliases to observex shared constants so all
+// foundation x-modules report identical cross-component metric names.
 const (
-	MetricClientCreatedTotal           = "client_created_total"
-	MetricClientClosedTotal            = "client_closed_total"
-	MetricClientErrorsTotal            = "client_errors_total"
-	MetricClientHealthStatus           = "client_health_status"
-	MetricClientHealthLatencyMS        = "client_health_latency_ms"
-	MetricClientRequestsTotal          = "client_requests_total"
-	MetricClientRequestDurationSeconds = "client_request_duration_seconds"
-	MetricClientRetriesTotal           = "client_retries_total"
-	MetricClientInflight               = "client_inflight"
-	MetricClickhouseQueriesTotal       = "clickhousex_queries_total"
-	MetricClickhouseBatchInsertsTotal  = "clickhousex_batch_inserts_total"
-	MetricClickhouseQueryDuration      = "clickhousex.query.duration"
-	MetricClickhouseWriteDuration      = "clickhousex.write.duration"
-	MetricClickhouseWriteRows          = "clickhousex.write.rows"
-	MetricClickhouseWriteBytes         = "clickhousex.write.bytes"
-	MetricClickhousePoolActive         = "clickhousex.pool.active"
-	MetricClickhousePoolIdle           = "clickhousex.pool.idle"
-	MetricClickhousePoolExhausted      = "clickhousex.pool.exhausted"
+	MetricClientCreatedTotal           = obs.MetricClientCreatedTotal
+	MetricClientClosedTotal            = obs.MetricClientClosedTotal
+	MetricClientErrorsTotal            = obs.MetricClientErrorsTotal
+	MetricClientHealthStatus           = obs.MetricClientHealthStatus
+	MetricClientHealthLatencyMS        = obs.MetricClientHealthLatencyMS
+	MetricClientRequestsTotal          = obs.MetricClientRequestsTotal
+	MetricClientRequestDurationSeconds = obs.MetricClientRequestDurationSeconds
+	MetricClientRetriesTotal           = obs.MetricClientRetriesTotal
+	MetricClientInflight               = obs.MetricClientInflight
+
+	// clickhousex-specific metric names.
+	MetricClickhouseQueriesTotal      = "clickhousex_queries_total"
+	MetricClickhouseBatchInsertsTotal = "clickhousex_batch_inserts_total"
+	MetricClickhouseQueryDuration     = "clickhousex.query.duration"
+	MetricClickhouseWriteDuration     = "clickhousex.write.duration"
+	MetricClickhouseWriteRows         = "clickhousex.write.rows"
+	MetricClickhouseWriteBytes        = "clickhousex.write.bytes"
+	MetricClickhousePoolActive        = "clickhousex.pool.active"
+	MetricClickhousePoolIdle          = "clickhousex.pool.idle"
+	MetricClickhousePoolExhausted     = "clickhousex.pool.exhausted"
 )
 
 // Metrics defines the hook interface for observability instrumentation.
+// It is a 3-method subset of observex.Metrics; any observex.Metrics
+// implementation satisfies this interface.
 type Metrics interface {
 	IncCounter(name string, labels map[string]string)
 	ObserveHistogram(name string, value float64, labels map[string]string)
 	SetGauge(name string, value float64, labels map[string]string)
 }
 
-// NoopMetrics is a Metrics implementation that discards all observations.
-type NoopMetrics struct{}
-
-func (NoopMetrics) IncCounter(name string, labels map[string]string) {
-	_ = name
-	_ = labels
-}
-
-func (NoopMetrics) ObserveHistogram(name string, value float64, labels map[string]string) {
-	_ = name
-	_ = value
-	_ = labels
-}
-
-func (NoopMetrics) SetGauge(name string, value float64, labels map[string]string) {
-	_ = name
-	_ = value
-	_ = labels
-}
+// NoopMetrics is an alias for observex.NoopMetrics; it satisfies Metrics and
+// discards all observations. Aliasing removes the duplicate no-op body.
+type NoopMetrics = obs.NoopMetrics

@@ -3,12 +3,13 @@ module github.com/ZoneCNH/clickhousex
 go 1.23.0
 
 require (
+	github.com/ClickHouse/ch-go v0.67.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.39.0
+	github.com/ZoneCNH/observex v0.3.4
 	github.com/shopspring/decimal v1.4.0
 )
 
 require (
-	github.com/ClickHouse/ch-go v0.67.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
