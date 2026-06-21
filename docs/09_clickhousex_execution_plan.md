@@ -29,7 +29,7 @@ common / columnstore / batch_insert / ttl / partition / streaming_query / async_
 ```yaml
 repo: clickhousex
 layer: L2
-version: "v1.0.9"
+version: "v1.0.10"
 target_release_level: L2-T4
 release_level_actual: L2-T3
 release_allowed: true

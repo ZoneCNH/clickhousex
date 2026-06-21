@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.10 - 2026-06-21
+
+- Integrate factory release validation into main and align release metadata to v1.0.10.
+- Keep the release at L2-T3; factory-grade evidence remains blocked until multi-hour soak, external rollout, and archive evidence exist.
+
 ## v1.0.9 - 2026-06-19
 
 - Add repository CI and a manual/scheduled factory evidence workflow, with pinned actions and a release metadata consistency job.
