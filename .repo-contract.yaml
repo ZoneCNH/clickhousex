@@ -13,6 +13,6 @@ identity:
   is_standard_source: false
   is_generator: false
 versions:
-  table_version: v1.0.9
-  latest_git_tag: v1.0.9
+  table_version: v1.0.10
+  latest_git_tag: v1.0.10
   all_aligned: true
