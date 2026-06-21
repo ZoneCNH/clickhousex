@@ -36,10 +36,24 @@ json_number_eq() {
 	jq -e "$filter == $expected" "$root/$path" >/dev/null || fail "$path $filter expected $expected"
 }
 
+json_number_gte() {
+	path="$1"
+	filter="$2"
+	minimum="$3"
+	jq -e "$filter >= $minimum" "$root/$path" >/dev/null || fail "$path $filter expected >= $minimum"
+}
+
 json_array_empty() {
 	path="$1"
 	filter="$2"
 	jq -e "$filter == []" "$root/$path" >/dev/null || fail "$path $filter expected []"
+}
+
+json_array_min_len() {
+	path="$1"
+	filter="$2"
+	minimum="$3"
+	jq -e "$filter | length >= $minimum" "$root/$path" >/dev/null || fail "$path $filter expected length >= $minimum"
 }
 
 json_matches() {
@@ -67,6 +81,10 @@ readiness=".agent/evidence/decision/release-readiness.json"
 manifest=".agent/evidence/manifest.json"
 trace=".agent/evidence/trace/traceability-matrix.json"
 retrospective=".agent/evidence/retrospective.json"
+factory_soak=".agent/evidence/raw/factory-live-soak.json"
+external_rollout=".agent/evidence/raw/external-consumer-rollout.json"
+factory_archive=".agent/evidence/raw/factory-release-archive.json"
+factory_check=".agent/evidence/normalized/factory-check.json"
 
 require_file "$readiness"
 require_file "$manifest"
@@ -77,6 +95,7 @@ json_string_eq "$readiness" ".target_release_level" "L2-T4"
 json_matches "$readiness" ".release_level_actual" "^L2-T[34]$"
 json_bool_eq "$readiness" ".release_allowed" "true"
 json_number_eq "$readiness" ".hard_failure_count" "0"
+release_version="$(jq -r '.release_version' "$root/$readiness")"
 
 for profile in unit contract integration chaos benchmark adoption; do
 	json_profile_pass "$readiness" "$profile"
@@ -102,15 +121,45 @@ done
 
 json_string_eq "$manifest" ".module" "clickhousex"
 json_string_eq "$manifest" ".schema_version" "1.0"
+json_string_eq "$manifest" ".release_version" "$release_version"
 json_string_eq "$trace" ".traceability_status" "complete"
 
 if [ "$mode" = "factory" ]; then
 	require_file "$retrospective"
+	require_file "$factory_soak"
+	require_file "$external_rollout"
+	require_file "$factory_archive"
+	require_file "$factory_check"
+
 	json_string_eq "$readiness" ".release_level_actual" "L2-T4"
 	json_bool_eq "$readiness" ".factory_grade" "true"
 	json_array_empty "$readiness" ".factory_blockers"
 	json_string_eq "$readiness" ".profile_status.retrospective" "pass"
 	json_string_eq "$retrospective" ".status" "pass"
+
+	json_string_eq "$factory_soak" ".module" "clickhousex"
+	json_string_eq "$factory_soak" ".release_version" "$release_version"
+	json_string_eq "$factory_soak" ".status" "pass"
+	json_number_gte "$factory_soak" ".duration_seconds" "10800"
+	json_number_gte "$factory_soak" ".iterations" "1"
+
+	json_string_eq "$external_rollout" ".module" "clickhousex"
+	json_string_eq "$external_rollout" ".release_version" "$release_version"
+	json_string_eq "$external_rollout" ".status" "pass"
+	json_number_gte "$external_rollout" ".passing_consumer_count" "4"
+	json_array_min_len "$external_rollout" ".consumers" "4"
+
+	json_string_eq "$factory_archive" ".module" "clickhousex"
+	json_string_eq "$factory_archive" ".release_version" "$release_version"
+	json_string_eq "$factory_archive" ".status" "pass"
+	json_array_min_len "$factory_archive" ".artifacts" "1"
+
+	json_string_eq "$factory_check" ".module" "clickhousex"
+	json_string_eq "$factory_check" ".release_version" "$release_version"
+	json_string_eq "$factory_check" ".status" "pass"
+	json_string_eq "$factory_check" ".release_level_actual" "L2-T4"
+	json_number_eq "$factory_check" ".hard_failure_count" "0"
+	json_array_min_len "$factory_check" ".checks" "3"
 fi
 
 printf '%s\n' "release-check: $mode gate passed"
