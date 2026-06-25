@@ -24,6 +24,33 @@ capability manifest
 common / columnstore / batch_insert / ttl / partition / streaming_query / async_insert
 ```
 
+## 2.1 Production DDL Contract (Plan008)
+
+Production Binance/market-data ClickHouse tables MUST use a replicated MergeTree engine and an explicit TTL clause:
+
+- Engine: `ReplicatedMergeTree(...)` or a replicated derivative; plain `MergeTree` is dev/test only.
+- Retention: table-level `TTL <event_time_column> + INTERVAL ... DELETE`; application DELETE jobs must not be the primary retention mechanism.
+- Partition/order: keep `PARTITION BY` (for example `toYYYYMM(...)`) and deterministic `ORDER BY` keys aligned with query predicates.
+
+Example:
+
+```sql
+CREATE TABLE market_ticks ON CLUSTER '{cluster}' (
+  symbol LowCardinality(String),
+  event_time DateTime64(3, 'UTC'),
+  payload String
+)
+ENGINE = ReplicatedMergeTree(
+  '/clickhouse/tables/{shard}/binance/market_ticks',
+  '{replica}'
+)
+PARTITION BY toYYYYMM(event_time)
+ORDER BY (symbol, event_time)
+TTL event_time + INTERVAL 30 DAY DELETE;
+```
+
+This closes the Plan008 S3/S4 precondition for replicated storage and bounded retention evidence.
+
 ## 3. L2 Capability Manifest
 
 ```yaml
