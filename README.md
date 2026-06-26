@@ -98,6 +98,25 @@ make fmt           # 格式化
 
 `make factory-check` 是 L2-T4 Factory Grade 硬门禁。当前基线刻意保持失败，直到归档多小时真实 ClickHouse soak、外部 consumer rollout 和 factory release archive 证据后，才能把 `.agent/evidence/decision/release-readiness.json` 提升为 `factory_grade=true`。`.github/workflows/factory-grade.yml` 提供手动/定时 factory evidence 采集入口。
 
+## Plan008 生产 DDL 契约
+
+生产事件表必须显式使用 `ReplicatedMergeTree`，并把保留期、分区和清理口径写入 DDL：
+
+```sql
+CREATE TABLE IF NOT EXISTS analytics.events
+(
+    event_time DateTime64(3, 'UTC'),
+    event_id String,
+    payload String
+)
+ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/analytics/events', '{replica}')
+PARTITION BY toYYYYMM(event_time)
+ORDER BY (event_time, event_id)
+TTL event_time + INTERVAL 730 DAY DELETE;
+```
+
+按月清理必须使用受控变更执行 `ALTER TABLE analytics.events DROP PARTITION 202601`。容量与保留期复验以 `system.parts` 为准，检查 active parts、partition、rows 和 bytes_on_disk，不以业务查询结果代替生产 DDL 契约证据。
+
 ## Live 集成测试
 
 默认测试不会连接外部服务。需要复验真实 ClickHouse 时，先在环境中提供 `CLICKHOUSEX_TEST_*` 或 `FOUNDATIONX_CLICKHOUSEX_*` 配置（`HOST`、`PORT`、`DATABASE`、`USERNAME`、`PASSWORD` 或 `DSN`），再运行：
