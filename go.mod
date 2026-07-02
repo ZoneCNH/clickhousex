@@ -1,6 +1,6 @@
 module github.com/ZoneCNH/clickhousex
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/ClickHouse/ch-go v0.67.0
